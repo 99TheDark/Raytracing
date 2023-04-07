@@ -1,0 +1,5 @@
+Make sphere detection function
+Detect if point is in shadow
+Loop through all lights
+Pass in spheres and lights from a JSON
+Move camera with cursor
