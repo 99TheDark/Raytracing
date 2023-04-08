@@ -63,9 +63,7 @@ Light[1] lights = Light[](
 #define uv (pos + 1.0) / 2.0
 #define ambiance 0.4
 
-#define infinity 999999999999999999.9
-#define epsilon 0.01
-#define pi 3.1415926535897932
+#define PI 3.1415926535897932
 
 float hit(vec3 pos, vec3 dir, Sphere sphere) {
     vec3 len = pos - sphere.pos;
@@ -78,7 +76,7 @@ float hit(vec3 pos, vec3 dir, Sphere sphere) {
     float determ = b * b - 4.0 * c;
 
     // Distance away
-    float t = -infinity;
+    float t = -INFINITY;
 
     if(determ > 0.0) {
         float r = sqrt(determ);
@@ -95,7 +93,7 @@ vec3 point(vec3 a, vec3 b) {
 void main() {
     vec3 rot = vec3(cos(cam.dir.x), sin(cam.dir.y), sin(cam.dir.x));
 
-    vec2 pix = pos * aspect;
+    vec2 PIx = pos * aspect;
 
     // https://gamedev.stackexchange.com/questions/139703/compute-up-and-right-from-a-direction
     vec3 right = cross(rot, vec3(0.0, 1.0, 0.0));
@@ -103,14 +101,14 @@ void main() {
 
     // Orgin & Direction
     vec3 org = cam.pos;
-    vec3 dir = normalize(right * pix.x + up * pix.y + rot);
+    vec3 dir = normalize(right * PIx.x + up * PIx.y + rot);
 
     color = vec4(0.0, 0.0, 0.0, 1.0);
 
     float diffuse = 1.0;
 
     for(int j = 0; j < MAX_BOUNCE; j++) {
-        float t = infinity;
+        float t = INFINITY;
         int index = -1;
 
         for(int i = 0; i < NUM_SPHERES; i++) {
@@ -126,7 +124,9 @@ void main() {
 
         Sphere sphere = spheres[index];
 
-        vec3 surface = org + dir * (t - epsilon);
+        float dist = distance(org, sphere.pos);
+
+        vec3 surface = org + dir * (t - dist * EPSILON); // Scale epsilon up as you get farther due to precision
         vec3 normal = normalize(surface - sphere.pos);
 
         // Loop through each light
