@@ -8,7 +8,7 @@ Promise.all([
     .then(texts => main(texts[0], texts[1]))
 
 const scene = [
-    0, 0, 0, 0
+    0, 0, 0, 0, 0
 ];
 
 var main = (vertexSource, fragmentSource) => {
@@ -99,6 +99,11 @@ var main = (vertexSource, fragmentSource) => {
     const draw = () => {
         let time = performance.now() / 1000;
 
+        cam.dir.x %= TAU;
+        cam.dir.y %= TAU;
+
+        cam.dir.y = Math.max(Math.min(cam.dir.y, HALF), - HALF);
+
         if(keys.w) {
             cam.pos.x += Math.cos(cam.dir.x) * cam.speed;
             cam.pos.z += Math.sin(cam.dir.x) * cam.speed;
@@ -116,7 +121,7 @@ var main = (vertexSource, fragmentSource) => {
             cam.pos.z -= Math.sin(cam.dir.x + HALF) * cam.speed;
         }
 
-        cam.pos.y = Math.sin(time);
+        // cam.pos.y = Math.sin(time);
 
         const timeUniformLocation = gl.getUniformLocation(program, "time");
         gl.uniform1f(timeUniformLocation, time);
