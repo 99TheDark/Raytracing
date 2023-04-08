@@ -1,5 +1,3 @@
-Movement with WASD
-Calculate hit sphere first
 Fix y rotation
 Loop through all lights
 Pass in spheres and lights from a JSON
