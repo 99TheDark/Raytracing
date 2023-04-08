@@ -20,6 +20,13 @@ struct Light {
     float intensity;
 };
 
+struct Camera {
+    vec3 pos;
+    vec3 dir;
+};
+
+uniform Camera cam;
+
 Sphere[4] spheres = Sphere[](
     Sphere(
         vec3(4.0, -1.0, 10.0),
@@ -35,7 +42,7 @@ Sphere[4] spheres = Sphere[](
         3.0
     ), Sphere(
         vec3(0.0, -10.0, 5.0),
-        vec3(0.0, 0.0, 0.0),
+        vec3(1.0, 1.0, 0.6),
         7.0
     )
 );
@@ -50,8 +57,7 @@ Light[1] lights = Light[](
 
 #define aspect normalize(size)
 #define uv (pos + 1.0) / 2.0
-#define ambiance 0.05
-#define ambientColor vec3(1.0)
+#define ambiance 0.2
 
 float hit(vec3 pos, vec3 dir, Sphere sphere) {
     vec3 len = pos - sphere.pos;
@@ -80,10 +86,10 @@ vec3 point(vec3 a, vec3 b) {
 
 void main() {
     // Orgin & Direction
-    vec3 org = vec3(0.0, sin(time) + 0.5, -2.0);
-    vec3 dir = normalize(vec3(pos * aspect, 1.0) + vec3(0.0, -0.2, 0.0));
+    vec3 org = cam.pos;
+    vec3 dir = normalize(vec3(pos * aspect, 1.0) + cam.dir);
 
-    color = vec4(ambientColor * ambiance, 1.0);
+    color = vec4(0.0, 0.0, 0.0, 1.0);
 
     float diffuse = 1.0;
 
@@ -108,7 +114,7 @@ void main() {
             }
 
             if(blocked) {
-                color += vec4(ambientColor * ambiance, 1.0);
+                color += vec4(sphere.color * ambiance, 1.0);
                 break;
             }
 
