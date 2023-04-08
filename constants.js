@@ -1,2 +1,2 @@
 const RESOLUTION = 1;
-const MAX_LIGHT_BOUNCES = 3;
+const MAX_LIGHT_BOUNCES = 5;
