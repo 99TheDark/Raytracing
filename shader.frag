@@ -22,18 +22,18 @@ struct Light {
 
 struct Camera {
     vec3 pos;
-    vec3 dir;
+    vec2 dir;
 };
 
 uniform Camera cam;
 
 Sphere[4] spheres = Sphere[](
     Sphere(
-        vec3(4.0, -1.0, 10.0),
+        vec3(4.0, -1.0, 6.0),
         vec3(0.7, 0.0, 0.0),
         2.0
     ), Sphere(
-        vec3(-2.0, -1.0, 6.0),
+        vec3(-4.0, -1.0, 6.0),
         vec3(0.0, 0.3, 0.0),
         2.0
     ), Sphere(
@@ -58,6 +58,8 @@ Light[1] lights = Light[](
 #define aspect normalize(size)
 #define uv (pos + 1.0) / 2.0
 #define ambiance 0.2
+
+#define pi 3.1415926535897932
 
 float hit(vec3 pos, vec3 dir, Sphere sphere) {
     vec3 len = pos - sphere.pos;
@@ -85,9 +87,17 @@ vec3 point(vec3 a, vec3 b) {
 }
 
 void main() {
+    vec3 rot = vec3(cos(cam.dir.x), sin(cam.dir.y), sin(cam.dir.x));
+
+    vec2 pix = pos * aspect;
+
+    // https://gamedev.stackexchange.com/questions/139703/compute-up-and-right-from-a-direction
+    vec3 right = cross(rot, vec3(0.0, 1.0, 0.0));
+    vec3 up = cross(right, rot);
+
     // Orgin & Direction
     vec3 org = cam.pos;
-    vec3 dir = normalize(vec3(pos * aspect, 1.0) + cam.dir);
+    vec3 dir = normalize(right * pix.x + up * pix.y + rot);
 
     color = vec4(0.0, 0.0, 0.0, 1.0);
 
