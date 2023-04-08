@@ -9,7 +9,7 @@ const Sphere = class {
     }
 }
 
-const Point = class {
+const Point3 = class {
     constructor(x = 0, y = 0, z = 0) {
         [this.x, this.y, this.z] = [x, y, z];
     }
@@ -23,22 +23,15 @@ const Point = class {
         this.x /= m;
         this.y /= m;
         this.z /= m;
-
-        return this;
     }
     angle() {
-        if(this.x == 0 && this.y == 0 && this.z == 0) return new Point(0, 0, 0);
-
-        let m = this.mag();
-
-        return new Point(
-            Math.acos(this.x / m),
-            Math.acos(this.y / m),
-            Math.acos(this.z / m)
+        return new Point2(
+            Math.atan(this.y / this.x),
+            Math.acos(this.z / this.mag())
         );
     }
     copy() {
-        return new Point(
+        return new Point3(
             this.x, 
             this.y,
             this.z
@@ -48,3 +41,35 @@ const Point = class {
         return [this.x, this.y, this.z];
     }
 };
+
+const Point2 = class {
+    constructor(x = 0, y = 0) {
+        [this.x, this.y] = [x, y];
+    }
+    mag() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+    normalize() {
+        if(this.x == 0 && this.y == 0) return;
+
+        let m = this.mag();
+        this.x /= m;
+        this.y /= m;
+    }
+    angle() {
+        return Math.atan2(this.y, this.x);
+    }
+    fromAngle(ang) {
+        this.x = Math.cos(ang);
+        this.y = Math.sin(ang);
+    }
+    copy() {
+        return new Point2(
+            this.x,
+            this.y
+        );
+    }
+    toArray() {
+        return [this.x, this.y]
+    } 
+}
