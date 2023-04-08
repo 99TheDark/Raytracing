@@ -22,12 +22,16 @@ var main = (vertexSource, fragmentSource) => {
         .replaceAll("MAX_BOUNCE", MAX_LIGHT_BOUNCES)
 
     const [width, height] = [parseInt(canvasStyle.width) / RESOLUTION, parseInt(canvasStyle.height) / RESOLUTION];
-    const [hwidth, hheight] = [width / 2, height / 2];
     const large = Math.max(width, height);
 
     [canvas.width, canvas.height] = [width, height];
 
-    if(!gl) throw "Your browser does not support WebGL.";
+    if(!gl) {
+        let err = "Your browser does not support WebGL.";
+
+        fps.textContent = err;
+        throw err;
+    }
 
     const vertexShader = gl.createShader(gl.VERTEX_SHADER);
     const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -66,8 +70,6 @@ var main = (vertexSource, fragmentSource) => {
         -1, -1
     ]);
 
-    // const spheres = new Float32Array(scene.map(sphere => sphere.toArray()).flat());
-
     const triBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, triBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, tris, gl.STATIC_DRAW);
@@ -88,14 +90,31 @@ var main = (vertexSource, fragmentSource) => {
     let keys = {};
 
     let cam = {
-        pos: new Point3(0, -1, -5),
-        dir: new Point2(Math.PI / 2, 0),
-        speed: 0.5
+        pos: new Point3(7, 1, -4),
+        dir: new Point2(2, -0.17),
+        speed: 0.3
     };
 
     let last = performance.now();
     const draw = () => {
         let time = performance.now() / 1000;
+
+        if(keys.w) {
+            cam.pos.x += Math.cos(cam.dir.x) * cam.speed;
+            cam.pos.z += Math.sin(cam.dir.x) * cam.speed;
+        }
+        if(keys.s) {
+            cam.pos.x -= Math.cos(cam.dir.x) * cam.speed;
+            cam.pos.z -= Math.sin(cam.dir.x) * cam.speed;
+        }
+        if(keys.d) {
+            cam.pos.x += Math.cos(cam.dir.x + HALF) * cam.speed;
+            cam.pos.z += Math.sin(cam.dir.x + HALF) * cam.speed;
+        }
+        if(keys.a) {
+            cam.pos.x -= Math.cos(cam.dir.x + HALF) * cam.speed;
+            cam.pos.z -= Math.sin(cam.dir.x + HALF) * cam.speed;
+        }
 
         cam.pos.y = Math.sin(time);
 
