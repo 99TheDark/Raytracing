@@ -1,5 +1,6 @@
-Fix y rotation
 Loop through all lights
+Random function
+Diffused lighting
 Pass in spheres and lights from a JSON
 Add materials via a material struct
 Give materials color and shininess
