@@ -59,6 +59,7 @@ Light[1] lights = Light[](
 #define uv (pos + 1.0) / 2.0
 #define ambiance 0.2
 
+#define infinity 999999999999999999.9
 #define pi 3.1415926535897932
 
 float hit(vec3 pos, vec3 dir, Sphere sphere) {
@@ -104,40 +105,47 @@ void main() {
     float diffuse = 1.0;
 
     for(int j = 0; j < MAX_BOUNCE; j++) {
+        float t = infinity;
+        int index = -1;
+
         for(int i = 0; i < NUM_SPHERES; i++) {
-            Sphere sphere = spheres[i];
+            float d = hit(org, dir, spheres[i]);
+            if(d < t && d > 0.0) {
+                index = i;
+                t = d;
+            }
+        }
 
-            float t = hit(org, dir, sphere);
+        // Has to hit something
+        if(index == -1) continue;
 
-            if(t <= 0.0) continue;
+        Sphere sphere = spheres[index];
 
-            vec3 surface = org + dir * t;
-            vec3 normal = normalize(surface - sphere.pos);
+        vec3 surface = org + dir * t;
+        vec3 normal = normalize(surface - sphere.pos);
 
-            // Loop through each light
-            bool blocked = false;
+        // Loop through each light
+        bool blocked = false;
 
-            // replace normal with dir from surface to light source
-            for(int k = 0; k < NUM_SPHERES; k++) if(k != i) if(hit(surface, point(surface, lights[0].pos), spheres[k]) > 0.0) {
+        for(int k = 0; k < NUM_SPHERES; k++) if(k != index) { // Make sure not to inlcude itself
+            if(hit(surface, point(surface, lights[0].pos), spheres[k]) > 0.0) {
                 blocked = true;
                 break;
             }
+        }
 
-            if(blocked) {
-                color += vec4(sphere.color * ambiance, 1.0);
-                break;
-            }
-
-            vec3 lambert = normalize(lights[0].color) * max(0.0, dot(normal, lights[0].pos)) * lights[0].intensity;
-
-            color += vec4(lambert + sphere.color, 1.0) * diffuse;
-
-            diffuse *= 0.6;
-
-            org = surface;
-            dir = normal;
-
+        if(blocked) {
+            color += vec4(sphere.color * ambiance, 1.0);
             break;
         }
+
+        vec3 lambert = normalize(lights[0].color) * max(0.0, dot(normal, lights[0].pos)) * lights[0].intensity;
+
+        color += vec4(lambert + sphere.color, 1.0) * diffuse;
+
+        diffuse *= 0.6;
+
+        org = surface;
+        dir = normal;
     }
 }
