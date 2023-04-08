@@ -88,8 +88,8 @@ var main = (vertexSource, fragmentSource) => {
     let keys = {};
 
     let cam = {
-        pos: new Point(0, 0, -2),
-        dir: new Point(0, 0, 0),
+        pos: new Point3(0, -1, -5),
+        dir: new Point2(Math.PI / 2, 0),
         speed: 0.5
     };
 
@@ -97,17 +97,7 @@ var main = (vertexSource, fragmentSource) => {
     const draw = () => {
         let time = performance.now() / 1000;
 
-        let d = cam.dir.angle();
-        if(keys.w) {
-            cam.pos.x += Math.sin(d.x) * cam.speed;
-            cam.pos.z -= Math.cos(d.x) * cam.speed;
-        }
-        if(keys.s) {
-            cam.pos.x -= Math.sin(d.x) * cam.speed;
-            cam.pos.z += Math.cos(d.x) * cam.speed;
-        }
-
-        cam.pos.y = Math.sin(time) + 0.5;
+        cam.pos.y = Math.sin(time);
 
         const timeUniformLocation = gl.getUniformLocation(program, "time");
         gl.uniform1f(timeUniformLocation, time);
@@ -115,7 +105,7 @@ var main = (vertexSource, fragmentSource) => {
         const camPosUniformLocation = gl.getUniformLocation(program, "cam.pos");
         const camDirUniformLocation = gl.getUniformLocation(program, "cam.dir");
         gl.uniform3fv(camPosUniformLocation, cam.pos.toArray());
-        gl.uniform3fv(camDirUniformLocation, cam.dir.toArray());
+        gl.uniform2fv(camDirUniformLocation, cam.dir.toArray());
 
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
