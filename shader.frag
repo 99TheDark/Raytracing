@@ -50,8 +50,33 @@ Light[1] lights = Light[](
 
 #define aspect normalize(size)
 #define uv (pos + 1.0) / 2.0
-#define ambiance 0.0
+#define ambiance 0.05
 #define ambientColor vec3(1.0)
+
+float hit(vec3 pos, vec3 dir, Sphere sphere) {
+    vec3 len = pos - sphere.pos;
+
+    // Note: dot of self = square of length
+    float a = dot(dir, dir);
+    float b = dot(dir, len) * 2.0;
+    float c = dot(len, len) - sphere.radius * sphere.radius;
+
+    float determ = b * b - 4.0 * c;
+
+    // Distance away
+    float t = 0.0;
+
+    if(determ > 0.0) {
+        float r = sqrt(determ);
+        t = min((r - b) / 2.0, (r + b) / -2.0);
+    } else if(determ == 0.0) t = b / -2.0;
+
+    return t;
+}
+
+vec3 point(vec3 a, vec3 b) {
+    return normalize(b - a);
+}
 
 void main() {
     // Orgin & Direction
@@ -63,46 +88,40 @@ void main() {
     float diffuse = 1.0;
 
     for(int j = 0; j < MAX_BOUNCE; j++) {
-        bool hit = false;
         for(int i = 0; i < NUM_SPHERES; i++) {
             Sphere sphere = spheres[i];
 
-            vec3 len = org - sphere.pos;
+            float t = hit(org, dir, sphere);
 
-            // Note: dot of self = square of length
-            float a = dot(dir, dir);
-            float b = dot(dir, len) * 2.0;
-            float c = dot(len, len) - sphere.radius * sphere.radius;
+            if(t <= 0.0) continue;
 
-            float determ = b * b - 4.0 * c;
+            vec3 surface = org + dir * t;
+            vec3 normal = normalize(surface - sphere.pos);
 
-            // Distance away
-            float t = 0.0;
+            // Loop through each light
+            bool blocked = false;
 
-            if(determ > 0.0) {
-                float r = sqrt(determ);
-                t = min((r - b) / 2.0, (r + b) / -2.0);
-            } else if(determ == 0.0) t = b / -2.0;
-
-            if(t > 0.0) {
-                vec3 surface = org + dir * t;
-                vec3 normal = normalize(surface - sphere.pos);
-
-                vec3 lambert = normalize(lights[0].color) * max(0.0, dot(normal, lights[0].pos)) * lights[0].intensity;
-                vec3 ambient = ambientColor * ambiance;
-
-                color += vec4(ambient + lambert + sphere.color, 1.0) * diffuse;
-
-                diffuse *= 0.6;
-
-                org = surface;
-                dir = normal;
-
-                hit = true;
-
+            // replace normal with dir from surface to light source
+            for(int k = 0; k < NUM_SPHERES; k++) if(k != i) if(hit(surface, point(surface, lights[0].pos), spheres[k]) > 0.0) {
+                blocked = true;
                 break;
             }
+
+            if(blocked) {
+                color += vec4(ambientColor * ambiance, 1.0);
+                break;
+            }
+
+            vec3 lambert = normalize(lights[0].color) * max(0.0, dot(normal, lights[0].pos)) * lights[0].intensity;
+
+            color += vec4(lambert + sphere.color, 1.0) * diffuse;
+
+            diffuse *= 0.6;
+
+            org = surface;
+            dir = normal;
+
+            break;
         }
-        if(!hit) return;
     }
 }
