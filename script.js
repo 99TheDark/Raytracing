@@ -14,12 +14,15 @@ const scene = [
 var main = (vertexSource, fragmentSource) => {
     const canvas = document.getElementById("canvas");
     const canvasStyle = getComputedStyle(canvas);
-    const gl = canvas.getContext("webgl2");
+    const gl = canvas.getContext("webgl2", {antialias: true});
     const fps = document.getElementById("fps");
 
     fragmentSource = fragmentSource
         .replaceAll("NUM_SPHERES", scene.length)
         .replaceAll("MAX_BOUNCE", MAX_LIGHT_BOUNCES)
+        .replaceAll("INFINITY", INFINITY)
+        .replaceAll("EPSILON", EPSILON)
+        .replaceAll("INFINITY", INFINITY)
 
     const [width, height] = [parseInt(canvasStyle.width) / RESOLUTION, parseInt(canvasStyle.height) / RESOLUTION];
     const large = Math.max(width, height);
@@ -120,8 +123,6 @@ var main = (vertexSource, fragmentSource) => {
             cam.pos.x -= Math.cos(cam.dir.x + HALF) * cam.speed;
             cam.pos.z -= Math.sin(cam.dir.x + HALF) * cam.speed;
         }
-
-        // cam.pos.y = Math.sin(time);
 
         const timeUniformLocation = gl.getUniformLocation(program, "time");
         gl.uniform1f(timeUniformLocation, time);
