@@ -27,7 +27,7 @@ struct Camera {
 
 uniform Camera cam;
 
-Sphere[4] spheres = Sphere[](
+Sphere[5] spheres = Sphere[](
     Sphere(
         vec3(4.0, -1.0, 6.0),
         vec3(0.7, 0.0, 0.0),
@@ -44,6 +44,10 @@ Sphere[4] spheres = Sphere[](
         vec3(0.0, -10.0, 5.0),
         vec3(1.0, 1.0, 0.6),
         7.0
+    ), Sphere(
+        vec3(5.0, 0.0, -10.0),
+        vec3(0.7, 0.3, 0.6),
+        4.0
     )
 );
 
@@ -57,9 +61,10 @@ Light[1] lights = Light[](
 
 #define aspect normalize(size)
 #define uv (pos + 1.0) / 2.0
-#define ambiance 0.2
+#define ambiance 0.4
 
 #define infinity 999999999999999999.9
+#define epsilon 0.0001
 #define pi 3.1415926535897932
 
 float hit(vec3 pos, vec3 dir, Sphere sphere) {
@@ -73,7 +78,7 @@ float hit(vec3 pos, vec3 dir, Sphere sphere) {
     float determ = b * b - 4.0 * c;
 
     // Distance away
-    float t = 0.0;
+    float t = -infinity;
 
     if(determ > 0.0) {
         float r = sqrt(determ);
@@ -121,17 +126,15 @@ void main() {
 
         Sphere sphere = spheres[index];
 
-        vec3 surface = org + dir * t;
+        vec3 surface = org + dir * (t - epsilon);
         vec3 normal = normalize(surface - sphere.pos);
 
         // Loop through each light
         bool blocked = false;
 
-        for(int k = 0; k < NUM_SPHERES; k++) if(k != index) { // Make sure not to inlcude itself
-            if(hit(surface, point(surface, lights[0].pos), spheres[k]) > 0.0) {
-                blocked = true;
-                break;
-            }
+        for(int k = 0; k < NUM_SPHERES; k++) if(hit(surface, point(surface, lights[0].pos), spheres[k]) > 0.0) {
+            blocked = true;
+            break;
         }
 
         if(blocked) {
@@ -143,7 +146,8 @@ void main() {
 
         color += vec4(lambert + sphere.color, 1.0) * diffuse;
 
-        diffuse *= 0.6;
+        // Just darken it temporarily before diffused lighting is added
+        diffuse *= 0.5;
 
         org = surface;
         dir = normal;
