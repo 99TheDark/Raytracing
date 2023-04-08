@@ -15,6 +15,7 @@ var main = (vertexSource, fragmentSource) => {
     const canvas = document.getElementById("canvas");
     const canvasStyle = getComputedStyle(canvas);
     const gl = canvas.getContext("webgl2");
+    const fps = document.getElementById("fps");
 
     fragmentSource = fragmentSource
         .replaceAll("NUM_SPHERES", scene.length)
@@ -80,6 +81,9 @@ var main = (vertexSource, fragmentSource) => {
 
     gl.viewport(0, 0, width, height);
 
+    fps.textContent = "60fps";
+
+    let last = performance.now();
     const draw = () => {
         const timeUniformLocation = gl.getUniformLocation(program, "time");
         gl.uniform1f(timeUniformLocation, performance.now() / 1000);
@@ -88,6 +92,9 @@ var main = (vertexSource, fragmentSource) => {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+        fps.textContent = `${Math.round(1000 / (performance.now() - last))}fps`;
+        last = performance.now();
 
         requestAnimationFrame(draw);
     };
