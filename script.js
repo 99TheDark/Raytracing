@@ -22,6 +22,8 @@ var main = (vertexSource, fragmentSource) => {
         .replaceAll("MAX_BOUNCE", MAX_LIGHT_BOUNCES)
 
     const [width, height] = [parseInt(canvasStyle.width) / RESOLUTION, parseInt(canvasStyle.height) / RESOLUTION];
+    const [hwidth, hheight] = [width / 2, height / 2];
+    const large = Math.max(width, height);
 
     [canvas.width, canvas.height] = [width, height];
 
@@ -83,10 +85,37 @@ var main = (vertexSource, fragmentSource) => {
 
     fps.textContent = "60fps";
 
+    let keys = {};
+
+    let cam = {
+        pos: new Point(0, 0, -2),
+        dir: new Point(0, 0, 0),
+        speed: 0.5
+    };
+
     let last = performance.now();
     const draw = () => {
+        let time = performance.now() / 1000;
+
+        let d = cam.dir.angle();
+        if(keys.w) {
+            cam.pos.x += Math.sin(d.x) * cam.speed;
+            cam.pos.z -= Math.cos(d.x) * cam.speed;
+        }
+        if(keys.s) {
+            cam.pos.x -= Math.sin(d.x) * cam.speed;
+            cam.pos.z += Math.cos(d.x) * cam.speed;
+        }
+
+        cam.pos.y = Math.sin(time) + 0.5;
+
         const timeUniformLocation = gl.getUniformLocation(program, "time");
-        gl.uniform1f(timeUniformLocation, performance.now() / 1000);
+        gl.uniform1f(timeUniformLocation, time);
+
+        const camPosUniformLocation = gl.getUniformLocation(program, "cam.pos");
+        const camDirUniformLocation = gl.getUniformLocation(program, "cam.dir");
+        gl.uniform3fv(camPosUniformLocation, cam.pos.toArray());
+        gl.uniform3fv(camDirUniformLocation, cam.dir.toArray());
 
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -98,6 +127,25 @@ var main = (vertexSource, fragmentSource) => {
 
         requestAnimationFrame(draw);
     };
+
+    document.addEventListener("keydown", e => {
+        e.preventDefault();
+        keys[e.key] = true;
+    });
+
+    document.addEventListener("keyup", e => {
+        e.preventDefault();
+        keys[e.key] = false;
+    });
+
+    document.addEventListener("mousemove", e => {
+        cam.dir.x += e.movementX / large;
+        cam.dir.y -= e.movementY / large;
+    });
+
+    canvas.addEventListener("click", () => {
+        canvas.requestPointerLock();
+    });
 
     requestAnimationFrame(draw);
 };
