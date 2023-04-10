@@ -1,4 +1,4 @@
-[Medium](https://medium.com/neosavvy-labs/webgl-2-0-ray-tracing-34866baca7c1)
-[Ohio University](https://web.cse.ohio-state.edu/~shen.94/681/Site/Slides_files/reflection_refraction.pdf)
-[Stackoverflow](https://stackoverflow.com/questions/34604481/convert-a-3d-vector-into-2-angles)
-[Shadertoy](https://www.shadertoy.com/view/XtGXW1)
+- [Medium](https://medium.com/neosavvy-labs/webgl-2-0-ray-tracing-34866baca7c1)
+- [Ohio University](https://web.cse.ohio-state.edu/~shen.94/681/Site/Slides_files/reflection_refraction.pdf)
+- [Stackoverflow](https://stackoverflow.com/questions/34604481/convert-a-3d-vector-into-2-angles)
+- [Shadertoy](https://www.shadertoy.com/view/XtGXW1)
